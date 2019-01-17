@@ -53,7 +53,7 @@ function convertDate(dt) {
 
 function convertDateTime(dt) {
   const date = new Date(dt);
-  const tabDate = `${date.getUTCFullYear()}-${date.getUTCMonth()}-${date.getUTCDate()} ${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}`;
+  const tabDate = `${date.getUTCFullYear()}-${date.getUTCMonth() + 1}-${date.getUTCDate()} ${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}`;
   return tabDate;
 }
 
@@ -387,17 +387,24 @@ muConnector.init = (initCallback) => {
 
   const code = getParameterByName('code');
   let hasAuth = false;
-  hasAuth = tableau.password.length > 0;
+  if (tableau.password) {
+    hasAuth = tableau.password.length > 0;
+  }
   if (code) {
     // User has logged in. Saving token to password
     const authcode = code;
     getTokens(authcode, (tokens) => {
+      console.log(tokens);
+      console.log('Phase', tableau.phase);
       if (tableau.phase === tableau.phaseEnum.interactivePhase
           || tableau.phase === tableau.phaseEnum.authPhase) {
+        console.log('Checking Auth', hasAuth);
         if (!hasAuth) {
           if (tableau.password === undefined || tableau.password === '') {
+            console.log('Saving tokens', tokens);
             tableau.password = tokens;
           }
+          console.log('Submitting');
           tableau.submit();
         } else {
           tableau.submit();
